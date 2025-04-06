@@ -63,7 +63,6 @@ def build_site(content_dir, template_path, public_dir, basepath="/"):
 def main():
     try:
         basepath = sys.argv[1] if len(sys.argv) > 1 else "/"
-        
         static_dir = './static'
         content_dir = './content'
         template_path = './template.html'
