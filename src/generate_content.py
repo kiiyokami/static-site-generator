@@ -91,6 +91,22 @@ def generate_pages_recursive(dir_path_content, template_path, dir_path_dest):
         logging.error(f"Error generating pages recursively: {str(e)}")
         raise
 
+def build_site(content_dir, template_path, public_dir, basepath):
+    try:
+        if not os.path.exists(public_dir):
+            os.makedirs(public_dir)
+
+        static_dir = os.path.join(content_dir, "static")
+        if os.path.exists(static_dir):
+            static_public = os.path.join(public_dir, "static")
+            copy_folder_and_contents(static_dir, static_public)
+
+        generate_pages_recursive(content_dir, template_path, public_dir)
+
+    except Exception as e:
+        logging.error(f"Error building site: {str(e)}")
+        raise
+
 def extract_title(md):
     lines = md.split("\n")
     for line in lines:
