@@ -69,29 +69,26 @@ def generate_page(from_path, template_path, dest_path):
         logging.error(f"Error generating page: {str(e)}")
         raise
 
-def build_site(content_dir, template_path, public_dir):
+def generate_pages_recursive(dir_path_content, template_path, dir_path_dest):
     try:
-        if not os.path.exists(public_dir):
-            os.makedirs(public_dir)
+        if not os.path.exists(dir_path_content):
+            raise FileNotFoundError(f"Content directory '{dir_path_content}' does not exist")
+        if not os.path.exists(template_path):
+            raise FileNotFoundError(f"Template file '{template_path}' does not exist")
 
-        static_dir = os.path.join(content_dir, "static")
-        if os.path.exists(static_dir):
-            static_public = os.path.join(public_dir, "static")
-            copy_folder_and_contents(static_dir, static_public)
+        for filename in os.listdir(dir_path_content):
+            from_path = os.path.join(dir_path_content, filename)
+            dest_path = os.path.join(dir_path_dest, filename)
 
-        for root, _, files in os.walk(content_dir):
-            for file in files:
-                if file.endswith('.md'):
-                    from_path = os.path.join(root, file)
-                    rel_path = os.path.relpath(from_path, content_dir)
-                    dest_path = os.path.join(
-                        public_dir,
-                        os.path.splitext(rel_path)[0] + '.html'
-                    )
-                    generate_page(from_path, template_path, dest_path)
+            if os.path.isfile(from_path) and filename.endswith(".md"):
+                dest_path = dest_path.replace(".md", ".html")
+                generate_page(from_path, template_path, dest_path)
+            elif os.path.isdir(from_path):
+                new_dest_path = os.path.join(dir_path_dest, filename)
+                generate_pages_recursive(from_path, template_path, new_dest_path)
 
     except Exception as e:
-        logging.error(f"Error building site: {str(e)}")
+        logging.error(f"Error generating pages recursively: {str(e)}")
         raise
 
 def extract_title(md):
